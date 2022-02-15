@@ -157,6 +157,23 @@ class ZCAN_CAN_OBJ(Structure):
                 ("Data",            c_ubyte*8),
                 ("Reserved",        c_ubyte*3)]
 
+class ZCAN_CAN_FRAME(Structure):
+    _fields_ = [("can_id",  c_uint, 29),
+                ("err",     c_uint, 1),
+                ("rtr",     c_uint, 1),
+                ("eff",     c_uint, 1),
+                ("can_dlc", c_ubyte),
+                ("__pad",   c_ubyte),
+                ("__res0",  c_ubyte),
+                ("__res1",  c_ubyte),
+                ("data",    c_ubyte * 8)]
+
+class ZCAN_Transmit_Data(Structure):
+    _fields_ = [("frame", ZCAN_CAN_OBJ), ("transmit_type", c_uint)]
+
+class ZCAN_Receive_Data(Structure):
+    _fields_  = [("frame", ZCAN_CAN_OBJ), ("timestamp", c_ulonglong)]
+
 '''
 CAN  CLASS
 '''
@@ -169,6 +186,8 @@ class ZCAN(object):
 
         if self.__dll is None:
             print("load ControlCAN.dll err")
+        else:
+            print("load ControlCAN.dll OK")
 
     def OpenDevice(self, device_type, device_index, reserved):
         try:
@@ -266,6 +285,29 @@ class ZCAN(object):
 
 #测试代码
 if __name__ == "__main__":
+
+    # with open("LEARAD00012.s19", "r") as fd:
+    # #     fd = open("LEARAD00012.s19", "r")
+    #     t_espsw = fd.readlines()
+    #     # print(t_espsw)
+    # print("----------------------------------------------------------------------------------------")
+    # _espsw = t_espsw[1:-1]
+    # # print(_espsw)
+    # _espSwPartsNum = 0
+    # _espSwParts = []
+    # _cutPoint = 0
+    # _espDataBatch = {}
+    # for i in range(1, len(_espsw)):
+    #     if (int(_espsw[i][4:10], 16) - int(_espsw[i - 1][4:10], 16)) != (int(_espsw[i - 1][2:4], 16) - 4):
+    #         _espSwParts.append(_espsw[_cutPoint:i])
+    #         # print("----------------------------------------------------------------------------------------")
+    #         # print(_espSwParts)
+    #         _cutPoint = i
+    #         _espSwPartsNum += 1
+    # _espSwParts.append([_espsw[len(_espsw) - 1]])
+    # _espSwPartsNum += 1
+    # print(_espSwParts)
+    # demo = ZCAN_CCDiag()
     zcanlib = ZCAN()
     ret = zcanlib.OpenDevice(ZCAN_USBCAN2, 0, 0)
     if ret != ZCAN_STATUS_OK:

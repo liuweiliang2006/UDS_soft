@@ -1,7 +1,8 @@
 完成python版本的测试，使用原厂的驱动即可。使用的文件目录：\CAN分析仪资料20210714\二次开发库文件\x64
 python使用3.8.0 64位版本
 
-
+https://github.com/pylessard/python-udsoncan
+https://github.com/pylessard/python-can-isotp
 
 …or create a new repository on the command line
 echo "# UDS_soft" >> README.md
