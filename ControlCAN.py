@@ -157,6 +157,17 @@ class ZCAN_CAN_OBJ(Structure):
                 ("Data",            c_ubyte*8),
                 ("Reserved",        c_ubyte*3)]
 
+class ISOTP_CAN_FRAME(Structure):
+    _fields_ = [("arbitration_id",  c_uint),
+                ("TimeStamp",       c_uint),
+                ("TimeFlag",        c_ubyte),
+                ("SendType",        c_ubyte),
+                ("RemoteFlag",      c_ubyte),
+                ("ExternFlag",      c_ubyte),
+                ("dlc",             c_ubyte),
+                ("data",            c_ubyte*8),
+                ("Reserved",        c_ubyte*3)]
+
 class ZCAN_CAN_FRAME(Structure):
     _fields_ = [("can_id",  c_uint, 29),
                 ("err",     c_uint, 1),
@@ -167,6 +178,7 @@ class ZCAN_CAN_FRAME(Structure):
                 ("__res0",  c_ubyte),
                 ("__res1",  c_ubyte),
                 ("data",    c_ubyte * 8)]
+
 
 class ZCAN_Transmit_Data(Structure):
     _fields_ = [("frame", ZCAN_CAN_OBJ), ("transmit_type", c_uint)]

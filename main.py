@@ -2,6 +2,7 @@
 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import binascii
 import queue
 import struct
 import threading
@@ -289,7 +290,7 @@ class ZCAN_CCDiag(object):
         if can_num and not self._terminated:
             read_cnt = MAX_RCV_NUM if can_num >= MAX_RCV_NUM else can_num
             can_msgs, act_num = self._zcan.Recvive(ZCAN_USBCAN2, 0, 0, can_num)
-            print(can_msgs)
+            # print("%s"%binascii.hexlify(can_msgs[0].Data))
         else:
             can_msgs = None
         return can_msgs
@@ -324,7 +325,15 @@ class ZCAN_CCDiag(object):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+    # recv_can_msgs = (ZCAN_CAN_OBJ * 10)()
+    # recv_can_msgs[0].ID = 1
+    # recv_can_msgs[1].ID = 2
+    # recv_can_msgs[2].ID = 3
+    # print(recv_can_msgs[0].ID)
+    # print(recv_can_msgs[1].ID)
+    # print(recv_can_msgs[2].ID)
     demo = ZCAN_CCDiag()
+
     print_hi('PyCharm')
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
