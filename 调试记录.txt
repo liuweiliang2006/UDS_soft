@@ -1,0 +1,32 @@
+-》问题：
+接口对接：周立功红盒子驱动-》ISOTP层-》UDS层  已解决
+
+-》问题：打开端口后 如何更改物理 功能寻址 采用如下方式								
+        self.isotp_layer.set_address(self._isotpaddr_FUNC) //如果为物理寻址方式发送，更改参数为PHY_ADDR即可
+        self.udsclient.change_session(3)
+		
+-》问题：接收报错，原因IOSTP中的结构定义与周立功的CAN帧结构不匹配，需更改protocol.py源文件；
+更改后进行了周期为1ms的通信测试，发送100帧验证是否有丢失，测试通过
+
+将如下：		
+if msgs is not None:    
+self.logger.debug("Receiving :  (%d)\t %s" % (msg.arbitration_id, len(msg.data), binascii.hexlify(msg.data)))    self.process_rx(msg)    
+更改为：
+if msg is not None:
+    # print(msg)
+    for zlgmsg in msg:
+        msgs = CanMessage(arbitration_id=zlgmsg.ID, data=zlgmsg.Data, dlc=zlgmsg.DataLen,extended_id=False)
+    # self.logger.debug("Receiving :  (%d)\t %s" % (msgs.arbitration_id, len(msgs.data), binascii.hexlify(msgs.data)))
+        print("rec:id-%d,dlc-%d,data-%s" % (msgs.arbitration_id,msgs.dlc, binascii.hexlify(msgs.data)))
+        self.process_rx(msgs)    
+
+-》问题：如何发送任意数据帧
+1、self.udsclient.change_session()，参见手册发送15765规定的功能
+2、发送任意帧方法：struct.pack使用方法见 https://blog.csdn.net/weiwangchao_/article/details/80395941
+payload_send = struct.pack("BBBBBBBB", 0x01, 0x01, 0x39, 0x00, 0x00, 0x00, 0x00, 0x00)		
+self.conn.send(payload_send)
+payload_rcv = self.conn.wait_frame(timeout=10)
+
+-》发送完诊断功能后的肯定响应与否定响应如何接收，并进行判断的？捋代码，未完全解决
+		
+-》如何更改P2？timeout的值如何更改？未解决

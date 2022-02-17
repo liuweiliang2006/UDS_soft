@@ -230,16 +230,16 @@ class ZCAN_CCDiag(object):
             print("start can device OK")
 
         self.udsclient.open()
-        payload_send = struct.pack("BBBBBBBB", 0x01, 0x01, 0x39, 0x00, 0x00, 0x00, 0x00, 0x00)
-        self.conn.send(payload_send)
-        payload_rcv = self.conn.wait_frame(timeout=10)
-        print(payload_rcv)
+        # payload_send = struct.pack("BBBBBBBB", 0x01, 0x01, 0x39, 0x00, 0x00, 0x00, 0x00, 0x00)
+        # self.conn.send(payload_send)
+        # payload_rcv = self.conn.wait_frame(timeout=10)
+        # print(payload_rcv)
         # self.udsclient.close()
         # self.isotp_layer = isotp.TransportLayer(rxfn=self.isotp_rcv, txfn=self.isotp_send, address=self._isotpaddr_FUNC,
         #                                         params=self.isotp_params)
         # self.udsclient.open()
-        # self.isotp_layer.set_address(self._isotpaddr_FUNC)
-        # self.udsclient.change_session(3)
+        self.isotp_layer.set_address(self._isotpaddr_FUNC)
+        self.udsclient.change_session(1)
 
     def SecAlgo(self, level, seed, params):
         """
