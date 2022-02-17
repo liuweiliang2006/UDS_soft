@@ -1,8 +1,10 @@
 -》问题：
 接口对接：周立功红盒子驱动-》ISOTP层-》UDS层  已解决
 
--》问题：打开端口后 如何更改物理 功能寻址 采用如下方式								
-        self.isotp_layer.set_address(self._isotpaddr_FUNC) //如果为物理寻址方式发送，更改参数为PHY_ADDR即可
+-》问题：打开端口后 如何更改物理 功能寻址 采用如下方式	
+        self._isotpaddr_PHYS = isotp.Address(isotp.AddressingMode.Normal_11bits, txid=ESC_RX_ID_PHYS, rxid=ESC_TX_ID)
+        self._isotpaddr_FUNC = isotp.Address(isotp.AddressingMode.Normal_11bits, txid=ESC_RX_ID_FUNC, rxid=ESC_TX_ID)							
+        self.isotp_layer.set_address(self._isotpaddr_FUNC) //如果为物理寻址方式发送，更改参数为self._isotpaddr_PHYS即可
         self.udsclient.change_session(3)
 		
 -》问题：接收报错，原因IOSTP中的结构定义与周立功的CAN帧结构不匹配，需更改protocol.py源文件；
