@@ -7,6 +7,7 @@ import queue
 import struct
 import threading
 import time
+import logging
 
 from ControlCAN import *
 from udsoncan.client import Client
@@ -35,12 +36,12 @@ USBCANFD_TYPE    = (41, 42, 43)
 USBCAN_XE_U_TYPE = (20, 21, 31)
 USBCAN_I_II_TYPE = (3, 4)
 
-ESC_TX_ID = 0x73E
-ESC_RX_ID_PHYS = 0x736
+ESC_TX_ID = 0x718
+ESC_RX_ID_PHYS = 0x728
 ESC_RX_ID_FUNC = 0x7DF
 
 EPS_TX_ID = 0x73D
-EPS_RX_ID_PHYS = 0x735
+EPS_RX_ID_PHYS = 0x718
 
 EPS4wd_TX_ID = 0x7BD
 EPS4wd_RX_ID_PHYS = 0x7B5
@@ -170,26 +171,27 @@ class ZCAN_CCDiag(object):
         self._lock = threading.RLock()
 
         self.isotp_params = {
-            'stmin' : 32,                          # Will request the sender to wait 32ms between consecutive frame. 0-127ms or 100-900ns with values from 0xF1-0xF9
+            'stmin' : 20,                          # Will request the sender to wait 32ms between consecutive frame. 0-127ms or 100-900ns with values from 0xF1-0xF9
             'blocksize' : 8,                       # Request the sender to send 8 consecutives frames before sending a new flow control message
             'wftmax' : 0,                          # Number of wait frame allowed before triggering an error
             'tx_data_length' : 8,                  # Link layer (CAN layer) works with 8 byte payload (CAN 2.0)
             'tx_padding' : 0,                      # Will pad all transmitted CAN messages with byte 0x00. None means no padding
-            'rx_flowcontrol_timeout' : 1000,        # Triggers a timeout if a flow control is awaited for more than 1000 milliseconds
-            'rx_consecutive_frame_timeout' : 1000,  # Triggers a timeout if a consecutive frame is awaited for more than 1000 milliseconds
+            'rx_flowcontrol_timeout' : 2000,        # Triggers a timeout if a flow control is awaited for more than 1000 milliseconds
+            'rx_consecutive_frame_timeout' : 2000,  # Triggers a timeout if a consecutive frame is awaited for more than 1000 milliseconds
             'squash_stmin_requirement' : False     # When sending, respect the stmin requirement of the receiver. If set to True, go as fast as possible.
             }
 
 
-        self._isotpaddr_PHYS = isotp.Address(isotp.AddressingMode.Normal_11bits, txid=ESC_RX_ID_PHYS, rxid=ESC_TX_ID)
+        # self._isotpaddr_PHYS = isotp.Address(isotp.AddressingMode.Normal_11bits, txid=ESC_RX_ID_PHYS, rxid=ESC_TX_ID)
         self._isotpaddr_FUNC = isotp.Address(isotp.AddressingMode.Normal_11bits, txid=ESC_RX_ID_FUNC, rxid=ESC_TX_ID)
 
-        self.isotp_layer = isotp.TransportLayer(rxfn=self.isotp_rcv, txfn=self.isotp_send, address=self._isotpaddr_PHYS,
+        self.isotp_layer = isotp.TransportLayer(rxfn=self.isotp_rcv, txfn=self.isotp_send, address=self._isotpaddr_FUNC,
                                             params=self.isotp_params)
 
 
         self.conn = ZCAN_CCDiag.IsoTpConnection(isotp_layer=self.isotp_layer)
         self.udsclient = Client(self.conn, request_timeout=2)
+        self.udsclient.config['p2_timeout'] == 3
         self.udsclient.config['security_algo'] = self.SecAlgo
         self.udsclient.config['security_algo_params'] = [0x4FE87269, 0x6BC361D8, 0x9B127D51, 0x5BA41903]
         self.udsclient.config['data_identifiers'] = {
@@ -209,8 +211,10 @@ class ZCAN_CCDiag(object):
             print("open can device OK")
 
         iniconfig = ZCAN_CHANNEL_CAN_INIT_CONFIG()
-        iniconfig.acc_code = 0x00000000
-        iniconfig.acc_mask = 0xffffffff
+        # iniconfig.acc_code = 0x00000000
+        iniconfig.acc_code = 0xE3000000
+        iniconfig.acc_mask = 0x00000000
+        # iniconfig.acc_mask = 0x718
         iniconfig.filter = 1
         iniconfig.timing0 = 0x00
         iniconfig.timing1 = 0x1C
@@ -238,8 +242,9 @@ class ZCAN_CCDiag(object):
         # self.isotp_layer = isotp.TransportLayer(rxfn=self.isotp_rcv, txfn=self.isotp_send, address=self._isotpaddr_FUNC,
         #                                         params=self.isotp_params)
         # self.udsclient.open()
-        self.isotp_layer.set_address(self._isotpaddr_FUNC)
-        self.udsclient.change_session(1)
+        # self.isotp_layer.set_address(self._isotpaddr_FUNC)
+        resp =self.udsclient.change_session(1)
+        print( resp )
 
     def SecAlgo(self, level, seed, params):
         """

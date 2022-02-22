@@ -287,7 +287,7 @@ class ZCAN(object):
 
     def Recvive(self,device_type, device_index, can_index,rcv_num, wait_time = c_int(-1)):
             try:
-                print("rcv_num =",rcv_num)
+                # print("rcv_num =",rcv_num)
                 recv_can_msgs = (ZCAN_CAN_OBJ * rcv_num)()
                 ret = self.__dll.VCI_Receive(device_type, device_index, can_index, byref(recv_can_msgs), rcv_num,wait_time)
                 return recv_can_msgs,ret

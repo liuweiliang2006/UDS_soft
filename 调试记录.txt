@@ -20,7 +20,7 @@ if msg is not None:
         msgs = CanMessage(arbitration_id=zlgmsg.ID, data=zlgmsg.Data, dlc=zlgmsg.DataLen,extended_id=False)
     # self.logger.debug("Receiving :  (%d)\t %s" % (msgs.arbitration_id, len(msgs.data), binascii.hexlify(msgs.data)))
         print("rec:id-%d,dlc-%d,data-%s" % (msgs.arbitration_id,msgs.dlc, binascii.hexlify(msgs.data)))
-        self.process_rx(msgs)    
+        self.process_rx(msgs)
 
 -》问题：如何发送任意数据帧
 1、self.udsclient.change_session()，参见手册发送15765规定的功能
@@ -29,6 +29,27 @@ payload_send = struct.pack("BBBBBBBB", 0x01, 0x01, 0x39, 0x00, 0x00, 0x00, 0x00,
 self.conn.send(payload_send)
 payload_rcv = self.conn.wait_frame(timeout=10)
 
--》发送完诊断功能后的肯定响应与否定响应如何接收，并进行判断的？捋代码，未完全解决
+-》发送完诊断功能后的肯定响应与否定响应如何接收，并进行判断的？解决
+返回response类型值，该返回结果包含肯定/否定响应
 		
--》如何更改P2？timeout的值如何更改？未解决
+-》如何更改P2？timeout的值如何更改？解决
+更改P2值： self.udsclient.config['p2_timeout'] == 3  以秒为单位
+
+-》指定接收ID，rxid-否则报错，self._isotpaddr_FUNC = isotp.Address(isotp.AddressingMode.Normal_11bits, txid=ESC_RX_ID_FUNC, rxid=ESC_TX_ID)
+
+-》logger使用，代码中默认级别为warnning，需更改调试等级
+更改client.py文件，函数configure_logger如下
+    def configure_logger(self):
+        logger_name = 'UdsClient'
+        if 'logger_name' in self.config:
+            logger_name = "UdsClient[%s]" % self.config['logger_name']
+
+        self.logger = logging.getLogger(logger_name)
+        # self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        sh = logging.StreamHandler()
+        sh.setLevel(logging.DEBUG)
+        sh.setFormatter(formatter)
+        self.logger.addHandler(sh)
+        print(self.logger)
