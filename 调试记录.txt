@@ -53,3 +53,11 @@ payload_rcv = self.conn.wait_frame(timeout=10)
         sh.setFormatter(formatter)
         self.logger.addHandler(sh)
         print(self.logger)
+		
+-》接收超时 client.py
+        if self.config['standard_version'] > 2006:
+            if self.config['use_server_timing']:
+                self.logger.info('%s - Received new timing parameters. P2=%.3fs and P2*=%.3fs.  Using these value from now on.' % (self.service_log_prefix(services.DiagnosticSessionControl), response.service_data.p2_server_max, response.service_data.p2_star_server_max))
+                self.session_timing['p2_server_max'] = response.service_data.p2_server_max
+                self.session_timing['p2_server_max'] = 5
+                self.session_timing['p2_star_server_max'] = response.service_data.p2_star_server_max

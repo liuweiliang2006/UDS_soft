@@ -3,6 +3,7 @@
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import binascii
+import datetime
 import queue
 import struct
 import threading
@@ -20,6 +21,11 @@ import isotp
 from isotp import CanMessage
 from functools import partial
 
+import sys
+import PyQt5.QtWidgets as qw
+import UDS_sevice as UDS
+import PyQt5.QtCore as qc
+import udssoft
 import os
 
 GRPBOX_WIDTH    = 200
@@ -37,7 +43,8 @@ USBCAN_XE_U_TYPE = (20, 21, 31)
 USBCAN_I_II_TYPE = (3, 4)
 
 ESC_TX_ID = 0x718
-ESC_RX_ID_PHYS = 0x728
+# ESC_TX_ID = 0x748
+ESC_RX_ID_PHYS = 0x710
 ESC_RX_ID_FUNC = 0x7DF
 
 EPS_TX_ID = 0x73D
@@ -149,6 +156,19 @@ class ZCAN_CCDiag(object):
                     self.logger.error(str(e))
                     print("Error occurred while read CAN(FD) data!")
 
+    def getDateTimeBytes(self):
+        """
+        get year/month/day and convert into bytes
+        """
+        _year_high = int(str(datetime.datetime.now().year), 16) >> 8
+        _year_low = int(str(datetime.datetime.now().year), 16) & 0xFF
+        _month = int(str(datetime.datetime.now().month), 16)
+        _day = int(str(datetime.datetime.now().day), 16)
+        _hour = int(str(datetime.datetime.now().hour), 16)
+        _minute = int(str(datetime.datetime.now().minute), 16)
+        _second = int(str(datetime.datetime.now().second), 16)
+
+        return (_year_high, _year_low, _month, _day, _hour, _minute, _second)
 
     def __init__(self):
         self.DeviceInit()
@@ -157,6 +177,12 @@ class ZCAN_CCDiag(object):
         self._zcan = ZCAN()
         self._dev_handle = INVALID_DEVICE_HANDLE
         self._can_handle = INVALID_CHANNEL_HANDLE
+
+        # self.__dll = windll.LoadLibrary("./CANoeILNLVector.dll")
+        # if self.__dll is None:
+        #     print("load CANoeILNLVector.dll err")
+        # else:
+        #     print("load CANoeILNLVector.dll OK")
 
         self._isOpen = False
         self._isChnOpen = False
@@ -182,10 +208,10 @@ class ZCAN_CCDiag(object):
             }
 
 
-        # self._isotpaddr_PHYS = isotp.Address(isotp.AddressingMode.Normal_11bits, txid=ESC_RX_ID_PHYS, rxid=ESC_TX_ID)
+        self._isotpaddr_PHYS = isotp.Address(isotp.AddressingMode.Normal_11bits, txid=ESC_RX_ID_PHYS, rxid=ESC_TX_ID)
         self._isotpaddr_FUNC = isotp.Address(isotp.AddressingMode.Normal_11bits, txid=ESC_RX_ID_FUNC, rxid=ESC_TX_ID)
 
-        self.isotp_layer = isotp.TransportLayer(rxfn=self.isotp_rcv, txfn=self.isotp_send, address=self._isotpaddr_FUNC,
+        self.isotp_layer = isotp.TransportLayer(rxfn=self.isotp_rcv, txfn=self.isotp_send, address=self._isotpaddr_PHYS,
                                             params=self.isotp_params)
 
 
@@ -196,7 +222,8 @@ class ZCAN_CCDiag(object):
         self.udsclient.config['security_algo_params'] = [0x4FE87269, 0x6BC361D8, 0x9B127D51, 0x5BA41903]
         self.udsclient.config['data_identifiers'] = {
             0xF1A8 : udsoncan.DidCodec('B'),
-            0xF190 : udsoncan.DidCodec('BBBBBBBBBBBBBBBB'),       # Codec that read ASCII string. We must tell the length of the string
+            0xF190 : udsoncan.DidCodec('BBBBBBBBBBBBBBBBB'),       # Codec that read ASCII string. We must tell the length of the string
+            # 0xF190: udsoncan.AsciiCodec(17),
             0xF195 : udsoncan.DidCodec('B'),
             0xF199 : udsoncan.DidCodec('BBBBBBB')
             }
@@ -219,6 +246,7 @@ class ZCAN_CCDiag(object):
         iniconfig.timing0 = 0x00
         iniconfig.timing1 = 0x1C
         iniconfig.mode = 0
+        # self.SecAlgo(level = 0x01,seed = [0x2B,0x3A,0x7A,0x44],params =0)
         ret = self._zcan.InitCAN(ZCAN_USBCAN2, 0, 0, iniconfig)
         if ret != ZCAN_STATUS_OK:
             print("init can device err")
@@ -232,6 +260,8 @@ class ZCAN_CCDiag(object):
             exit(0)
         else:
             print("start can device OK")
+        # value = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
+        # print(type(value))
 
         self.udsclient.open()
         # payload_send = struct.pack("BBBBBBBB", 0x01, 0x01, 0x39, 0x00, 0x00, 0x00, 0x00, 0x00)
@@ -243,52 +273,49 @@ class ZCAN_CCDiag(object):
         #                                         params=self.isotp_params)
         # self.udsclient.open()
         # self.isotp_layer.set_address(self._isotpaddr_FUNC)
-        resp =self.udsclient.change_session(1)
-        print( resp )
+        resp =self.udsclient.change_session(3)
+        print(resp)
+        # resp = self.udsclient.write_data_by_identifier(did = 0xF190, value=(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17))
+        # print( resp )
+        # resp = self.udsclient.read_data_by_identifier(0xF190)
+        # print( resp )
+        # resp = self.udsclient.request_seed(0x01)
+        self.udsclient.unlock_security_access(0x01)
+        print(resp.data)
+        resp = self.udsclient.read_data_by_identifier(0xF190)
+        resp = self.udsclient.write_data_by_identifier(did=0xF190, value=(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17))
+        print(resp)
+        resp = self.udsclient.read_data_by_identifier(0xF190)
+
 
     def SecAlgo(self, level, seed, params):
-        """
-    Builds the security key to unlock a security level.
-
-        temp_key = bytearray(seed)
-        self.output_key = bytearray(seed)
-        xorkey = bytearray(params['xorkey'])
-
-        for i in range(len(temp_key)):
-            temp_key[i] = temp_key[i] ^ xorkey[i]
-
-        self.output_key[0] = (temp_key[3] & 0x0F) | (temp_key[2] & 0xF0)
-        self.output_key[1] = ((temp_key[2] & 0x1F) << 3) | ((temp_key[1] & 0xF8) >> 3)
-        self.output_key[2] = ((temp_key[1] & 0xFC) >> 2) | (temp_key[0] & 0xC0)
-        self.output_key[3] = ((temp_key[0] & 0x0F) << 4) | (temp_key[3] & 0x0F)
-        """
-        temp_key = (seed[0] << 24) | (seed[1] << 16) | (seed[2] << 8) | (seed[3])
         if level == 0x01:
-            output_key_temp = ((((temp_key >> 4) ^ temp_key) << 3) ^ temp_key) & 0xFFFFFFFF
-        elif level == 0x11:
-            _temp_y = ((temp_key << 24) & 0xFF000000) + ((temp_key << 8) & 0xFF0000) + ((temp_key >> 8) & 0xFF00) + (
-                        (temp_key >> 24) & 0xFF)
-            _temp_z = 0
-            _temp_sum = 0
-            for i in range(64):
-                _temp_y += ((((_temp_z << 4) ^ (_temp_z >> 5)) + _temp_z) ^ (
-                            _temp_sum + params[_temp_sum & 0x3])) & 0xFFFFFFFF
-                _temp_y = _temp_y & 0xFFFFFFFF
-                _temp_sum += 0x8F750A1D
-                _temp_sum = _temp_sum & 0xFFFFFFFF
-                _temp_z += ((((_temp_y << 4) ^ (_temp_y >> 5)) + _temp_y) ^ (
-                            _temp_sum + params[(_temp_sum >> 11) & 0x3])) & 0xFFFFFFFF
-                _temp_z = _temp_z & 0xFFFFFFFF
-            output_key_temp = (
-                        ((_temp_z << 24) & 0xFF000000) | ((_temp_z << 8) & 0xFF0000) | ((_temp_z >> 8) & 0xFF00) | (
-                            (_temp_z >> 24) & 0xFF))
+            mask = 0xEBCAFE17
+            # mask = 0x8EACBD9F
         else:
-            output_key_temp = temp_key
-
-        output_key = struct.pack('BBBB', (output_key_temp >> 24) & 0xFF, (output_key_temp >> 16) & 0xFF,
-                                 (output_key_temp >> 8) & 0xFF, output_key_temp & 0xFF)
-
-        return output_key
+            mask = 0xE75BF4E7
+        temp_key = (seed[0] << 24) | (seed[1] << 16) | (seed[2] << 8) | (seed[3])
+        for i in range(0,35):
+            if temp_key & 0x80000000:
+                temp_key = temp_key << 1
+                temp_key = temp_key ^ mask
+            else:
+                temp_key = temp_key << 1
+        for i in range(0,4):
+            if i == 0:
+                key3 = temp_key & 0x000000ff
+            if i == 1:
+                key2 = (temp_key >> 8) & 0x000000ff
+            if i == 2:
+                key1 = (temp_key >> 16) & 0x000000ff
+            if i == 3:
+                key0 = (temp_key >> 24) & 0x000000ff
+        key = [key0,key1,key2,key3]
+        # key = (key0<<24)|(key1<<16)|(key2<<8)|key3
+        # print(hex(key0),hex(key1),hex(key2),hex(key3))
+        # print(hex(key))
+        key = struct.pack('BBBB',key0,key1,key2,key3)
+        return key
 
     def isotp_rcv(self):
         can_num = self._zcan.GetReceiveNum(ZCAN_USBCAN2, 0, 0)
@@ -320,7 +347,9 @@ class ZCAN_CCDiag(object):
 
         for i in range(len(isotp_msg.data)):
             msg.Data[i] = isotp_msg.data[i]
-
+        print("sed:id-%s,dlc-%d,data-%s" % (hex(msg.ID), msg.DataLen, binascii.hexlify(msg.Data)))
+        # print(str(datetime.datetime.now().second))
+        # print(str(datetime.datetime.now().microsecond))
         ret = self._zcan.Transmit(ZCAN_USBCAN2, 0, 0, msg, 1)
         if ret != 1:
             # messagebox.showerror(title="发送报文", message="发送失败！")
@@ -328,8 +357,12 @@ class ZCAN_CCDiag(object):
         return
 
 
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+    app = qw.QApplication(sys.argv)
+    w = UDS.myMainWindow()
     # recv_can_msgs = (ZCAN_CAN_OBJ * 10)()
     # recv_can_msgs[0].ID = 1
     # recv_can_msgs[1].ID = 2
@@ -337,8 +370,9 @@ if __name__ == '__main__':
     # print(recv_can_msgs[0].ID)
     # print(recv_can_msgs[1].ID)
     # print(recv_can_msgs[2].ID)
-    demo = ZCAN_CCDiag()
-
+    # demo = ZCAN_CCDiag()
+    w.show()
     print_hi('PyCharm')
+    sys.exit(app.exec_())
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QGroupBox" name="groupBox">
+   <widget class="QGroupBox" name="groupBox_DevConfig">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -26,7 +26,7 @@
     <property name="title">
      <string>设备配置</string>
     </property>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="label_DevType">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -39,7 +39,7 @@
       <string>设备类型：</string>
      </property>
     </widget>
-    <widget class="QComboBox" name="comboBox">
+    <widget class="QComboBox" name="comboBox_DevType">
      <property name="geometry">
       <rect>
        <x>90</x>
@@ -54,7 +54,7 @@
       </property>
      </item>
     </widget>
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="label_DevIndex">
      <property name="geometry">
       <rect>
        <x>220</x>
@@ -67,7 +67,7 @@
       <string>设备索引：</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_3">
+    <widget class="QLabel" name="label_Chanel">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -80,7 +80,7 @@
       <string>CAN通道：</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_4">
+    <widget class="QLabel" name="label_Baud">
      <property name="geometry">
       <rect>
        <x>220</x>
@@ -93,7 +93,7 @@
       <string>波特率：</string>
      </property>
     </widget>
-    <widget class="QComboBox" name="comboBox_2">
+    <widget class="QComboBox" name="comboBox_DevIndex">
      <property name="geometry">
       <rect>
        <x>290</x>
@@ -108,7 +108,7 @@
       </property>
      </item>
     </widget>
-    <widget class="QComboBox" name="comboBox_3">
+    <widget class="QComboBox" name="comboBox_Chanel">
      <property name="geometry">
       <rect>
        <x>90</x>
@@ -123,7 +123,7 @@
       </property>
      </item>
     </widget>
-    <widget class="QComboBox" name="comboBox_4">
+    <widget class="QComboBox" name="comboBox_Baud">
      <property name="geometry">
       <rect>
        <x>290</x>
@@ -138,7 +138,7 @@
       </property>
      </item>
     </widget>
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="pushButton_Open">
      <property name="geometry">
       <rect>
        <x>710</x>
@@ -197,7 +197,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_3">
+    <widget class="QPushButton" name="pushButton_Close">
      <property name="geometry">
       <rect>
        <x>710</x>
@@ -227,7 +227,7 @@
      <attribute name="title">
       <string>服务测试</string>
      </attribute>
-     <widget class="QGroupBox" name="groupBox_2">
+     <widget class="QGroupBox" name="groupBox_Addr">
       <property name="geometry">
        <rect>
         <x>770</x>
@@ -239,7 +239,7 @@
       <property name="title">
        <string>地址</string>
       </property>
-      <widget class="QLabel" name="label_6">
+      <widget class="QLabel" name="label_AddrPHY">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -252,7 +252,7 @@
         <string>物理地址：0x</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_7">
+      <widget class="QLabel" name="label_AddrFunc">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -265,7 +265,7 @@
         <string>功能地址：0x</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="lineEdit_2">
+      <widget class="QLineEdit" name="lineEdit_AddrPHY">
        <property name="geometry">
         <rect>
          <x>110</x>
@@ -275,7 +275,7 @@
         </rect>
        </property>
       </widget>
-      <widget class="QLineEdit" name="lineEdit_3">
+      <widget class="QLineEdit" name="lineEdit_AddrFunc">
        <property name="geometry">
         <rect>
          <x>110</x>
@@ -289,7 +289,7 @@
        </property>
       </widget>
      </widget>
-     <widget class="QGroupBox" name="groupBox_3">
+     <widget class="QGroupBox" name="groupBox_CANTp">
       <property name="geometry">
        <rect>
         <x>770</x>
@@ -301,7 +301,7 @@
       <property name="title">
        <string>网络层参数</string>
       </property>
-      <widget class="QLabel" name="label_8">
+      <widget class="QLabel" name="label_STmin">
        <property name="geometry">
         <rect>
          <x>30</x>
@@ -314,7 +314,7 @@
         <string>STmin(ms)</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="lineEdit_4">
+      <widget class="QLineEdit" name="lineEdit_STmin">
        <property name="geometry">
         <rect>
          <x>110</x>
@@ -328,7 +328,7 @@
        </property>
       </widget>
      </widget>
-     <widget class="QGroupBox" name="groupBox_4">
+     <widget class="QGroupBox" name="groupBox_SeverParam">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -340,7 +340,7 @@
       <property name="title">
        <string>服务参数设置</string>
       </property>
-      <widget class="QLabel" name="label_9">
+      <widget class="QLabel" name="label_SID">
        <property name="geometry">
         <rect>
          <x>50</x>
@@ -353,7 +353,7 @@
         <string>服务标识(SID)</string>
        </property>
       </widget>
-      <widget class="QComboBox" name="comboBox_5">
+      <widget class="QComboBox" name="comboBox_SID">
        <property name="geometry">
         <rect>
          <x>160</x>
@@ -364,11 +364,106 @@
        </property>
        <item>
         <property name="text">
+         <string>NONE</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>0x10-DiagnosticSessionControl</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>0x11-EcuReset</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0x14-ClearDiagnosticInformation</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0x19-ReadDataByIdentifier</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0x22-ReadDataByIdentifier</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0x23-ReadMemoryByAddress</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0x27-SecurityAccess</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0x28-CommunicationControl</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0x2A-ReadDataByPeriodicldentifier</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0x2C-DynaicallyDefineDataIdentifier</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0x2E-WriteDataByIdentifier</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0x2F-InputOutputControlByIdentifier</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0x31-RoutineControl</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0x34-RequestDownload</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0x36-TransferData</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0x37-RequestTransferExit</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0x3D-WriteMemoryByAddress</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0x3E-TesterPresent</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0x85-ControlDTCSetting</string>
+        </property>
+       </item>
       </widget>
-      <widget class="QLabel" name="label_10">
+      <widget class="QLabel" name="label_SSID">
        <property name="geometry">
         <rect>
          <x>30</x>
@@ -381,7 +476,7 @@
         <string>子服务标识(SSID)</string>
        </property>
       </widget>
-      <widget class="QComboBox" name="comboBox_6">
+      <widget class="QComboBox" name="comboBox_SSID">
        <property name="geometry">
         <rect>
          <x>160</x>
@@ -390,13 +485,8 @@
          <height>22</height>
         </rect>
        </property>
-       <item>
-        <property name="text">
-         <string>0x01-默认会话</string>
-        </property>
-       </item>
       </widget>
-      <widget class="QLabel" name="label_11">
+      <widget class="QLabel" name="label_DID">
        <property name="geometry">
         <rect>
          <x>50</x>
@@ -409,7 +499,7 @@
         <string>数据标识(DID)</string>
        </property>
       </widget>
-      <widget class="QComboBox" name="comboBox_7">
+      <widget class="QComboBox" name="comboBox_DID">
        <property name="geometry">
         <rect>
          <x>160</x>
@@ -424,7 +514,7 @@
         </property>
        </item>
       </widget>
-      <widget class="QGroupBox" name="groupBox_5">
+      <widget class="QGroupBox" name="groupBox_AddrConfig">
        <property name="geometry">
         <rect>
          <x>560</x>
@@ -436,7 +526,7 @@
        <property name="title">
         <string>寻址方式</string>
        </property>
-       <widget class="QRadioButton" name="radioButton">
+       <widget class="QRadioButton" name="radioButton_phy">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -449,7 +539,7 @@
          <string>物理寻址</string>
         </property>
        </widget>
-       <widget class="QRadioButton" name="radioButton_2">
+       <widget class="QRadioButton" name="radioButton_Func">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -476,7 +566,7 @@
         <string>发送</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_14">
+      <widget class="QLabel" name="label_WriteData">
        <property name="geometry">
         <rect>
          <x>80</x>
@@ -489,7 +579,7 @@
         <string>写入数据</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="lineEdit_7">
+      <widget class="QLineEdit" name="lineEdit_WriteData">
        <property name="geometry">
         <rect>
          <x>160</x>
@@ -502,7 +592,7 @@
         <string>VIN1234567</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_15">
+      <widget class="QLabel" name="label_Text">
        <property name="geometry">
         <rect>
          <x>440</x>
