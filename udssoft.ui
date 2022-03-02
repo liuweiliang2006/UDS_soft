@@ -589,7 +589,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>VIN1234567</string>
+        <string/>
        </property>
       </widget>
       <widget class="QLabel" name="label_Text">

@@ -38,23 +38,32 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
         content = self.comboBox_SID.currentText()
         print("combox's value is", content)
         if "NONE" in content:
-            self.comboBox_SSID.clear()
-            self.comboBox_SSID.addItem("NONE")
+            self.display_data()
+            self.display_SSID()
+            self.display_DID()
+
         if "0x10" in content:
             print("0x10")
-            self.comboBox_SSID.clear()
+            self.display_SSID()
+            self.Hide_data()
+            self.Hide_DID()
             self.comboBox_SSID.addItem("0x01-默认会话")
             self.comboBox_SSID.addItem("0x02-编程会话")
             self.comboBox_SSID.addItem("0x03-扩展会话")
+
         if "0x11" in content:
             print("0x11")
-            self.comboBox_SSID.clear()
+            self.display_SSID()
+            self.Hide_data()
+            self.Hide_DID()
             self.comboBox_SSID.addItem("0x01-硬件复位")
             self.comboBox_SSID.addItem("0x02-钥匙开关复位")
             self.comboBox_SSID.addItem("0x01-软件复位")
         if "0x14" in content:
             print("0x14")
-            self.comboBox_SSID.clear()
+            self.display_SSID()
+            self.Hide_data()
+            self.Hide_DID()
             self.comboBox_SSID.addItem("0x100000-动力组")
             self.comboBox_SSID.addItem("0x200000-信息娱乐组")
             self.comboBox_SSID.addItem("0x400000-底盘和ADAS组")
@@ -63,7 +72,9 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             self.comboBox_SSID.addItem("0xFFFFFF-所有组")
         if "0x19" in content:
             print("0x19")
-            self.comboBox_SSID.clear()
+            self.display_SSID()
+            self.Hide_data()
+            self.Hide_DID()
             self.comboBox_SSID.addItem("0x01-报告DTC数目")
             self.comboBox_SSID.addItem("0x02-报告DTC")
             self.comboBox_SSID.addItem("0x04-DTCSnapshot记录")
@@ -71,15 +82,18 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             self.comboBox_SSID.addItem("0x0A-报告支持的DTC")
         if "0x22" in content:
             print("0x22")
-            self.comboBox_SSID.clear()
-            self.comboBox_SSID.setHidden(True)
-            self.label_SSID.setHidden(True)
+            self.Hide_SSID()
+            self.Hide_data()
+            self.display_DID()
+            self.add_comboBox_DID()
             # self.comboBox_SSID.setEditable(False)
         if "0x23" in content:
             print("0x23")
         if "0x27" in content:
             print("0x27")
-            self.comboBox_SSID.clear()
+            self.display_SSID()
+            self.Hide_data()
+            self.Hide_DID()
             self.comboBox_SSID.addItem("0x01-请求种子(level 1)")
             self.comboBox_SSID.addItem("0x02-发送密钥(level 1)")
             self.comboBox_SSID.addItem("0x03-请求种子(level 2)")
@@ -88,7 +102,9 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             self.comboBox_SSID.addItem("0x0A-发送密钥(level 3)")
         if "0x28" in content:
             print("0x28")
-            self.comboBox_SSID.clear()
+            self.display_SSID()
+            self.Hide_data()
+            self.Hide_DID()
             self.comboBox_SSID.addItem("0x00-enableRxAndTx")
             self.comboBox_SSID.addItem("0x01-enableRxAndDisableTx")
             self.comboBox_SSID.addItem("0x02-disableRxAndEnableTx")
@@ -100,9 +116,11 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             print("0x2C")
         if "0x2E" in content:
             print("0x2E")
-            self.comboBox_SSID.clear()
-            self.comboBox_SSID.setHidden(True)
-            self.label_SSID.setHidden(True)
+            self.display_DID()
+            self.display_data()
+            self.Hide_SSID()
+            self.add_comboBox_DID()
+
         if "0x2F" in content:
             print("0x2F")
         if "0x31" in content:
@@ -117,12 +135,56 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             print("0x3D")
         if "0x3E" in content:
             print("0x3E")
-            self.comboBox_SSID.clear()
+            self.display()
             self.comboBox_SSID.setHidden(True)
             self.label_SSID.setHidden(True)
 
         if "0x85" in content:
             print("0x85")
-            self.comboBox_SSID.clear()
+            self.display_SSID()
+            self.Hide_data()
+            self.Hide_DID()
             self.comboBox_SSID.addItem("0x01-ON 恢复诊断故障码设置")
             self.comboBox_SSID.addItem("0x02-OFF 停止诊断故障码设置")
+
+    def display_data(self):
+        self.label_WriteData.setHidden(False)
+        self.label_Text.setHidden(False)
+        self.lineEdit_WriteData.setHidden(False)
+
+    def Hide_data(self):
+        self.label_WriteData.setHidden(True)
+        self.label_Text.setHidden(True)
+        self.lineEdit_WriteData.setHidden(True)
+
+    def display_SSID(self):
+        self.comboBox_SSID.clear()
+        self.comboBox_SSID.setHidden(False)
+        self.label_SSID.setHidden(False)
+
+    def Hide_SSID(self):
+        self.comboBox_SSID.clear()
+        self.comboBox_SSID.setHidden(True)
+        self.label_SSID.setHidden(True)
+
+    def display_DID(self):
+        self.comboBox_DID.clear()
+        self.comboBox_DID.setHidden(False)
+        self.label_DID.setHidden(False)
+
+    def Hide_DID(self):
+        self.comboBox_DID.clear()
+        self.comboBox_DID.setHidden(True)
+        self.label_DID.setHidden(True)
+    def add_comboBox_DID(self):
+        self.comboBox_DID.addItem("0xF187-零部件编号")
+        self.comboBox_DID.addItem("0xF18A-供应商代码")
+        self.comboBox_DID.addItem("0xF18B-ECU制造日期")
+        self.comboBox_DID.addItem("0xF18C-ECU流水编号")
+        self.comboBox_DID.addItem("0xF190-车身号码VIN")
+        self.comboBox_DID.addItem("0xF192-供应商ECU硬件号")
+        self.comboBox_DID.addItem("0xF193-供应商ECU硬件版本号")
+        self.comboBox_DID.addItem("0xF194-供应商ECU软件号")
+        self.comboBox_DID.addItem("0xF195-供应商ECU软件版本号")
+        self.comboBox_DID.addItem("0xF198-维修点代码或诊断仪序列号")
+        self.comboBox_DID.addItem("0xF19D-ECU安装日期代码")
