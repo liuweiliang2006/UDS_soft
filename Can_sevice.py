@@ -26,7 +26,6 @@ import PyQt5.QtWidgets as qw
 import UDS_sevice as UDS
 import PyQt5.QtCore as qc
 import udssoft
-import Can_sevice
 import os
 
 GRPBOX_WIDTH    = 200
@@ -209,6 +208,7 @@ class ZCAN_CCDiag(object):
             }
 
 
+
         self._isotpaddr_PHYS = isotp.Address(isotp.AddressingMode.Normal_11bits, txid=ESC_RX_ID_PHYS, rxid=ESC_TX_ID)
         self._isotpaddr_FUNC = isotp.Address(isotp.AddressingMode.Normal_11bits, txid=ESC_RX_ID_FUNC, rxid=ESC_TX_ID)
 
@@ -261,32 +261,8 @@ class ZCAN_CCDiag(object):
             exit(0)
         else:
             print("start can device OK")
-        # value = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
-        # print(type(value))
 
         self.udsclient.open()
-        # payload_send = struct.pack("BBBBBBBB", 0x01, 0x01, 0x39, 0x00, 0x00, 0x00, 0x00, 0x00)
-        # self.conn.send(payload_send)
-        # payload_rcv = self.conn.wait_frame(timeout=10)
-        # print(payload_rcv)
-        # self.udsclient.close()
-        # self.isotp_layer = isotp.TransportLayer(rxfn=self.isotp_rcv, txfn=self.isotp_send, address=self._isotpaddr_FUNC,
-        #                                         params=self.isotp_params)
-        # self.udsclient.open()
-        # self.isotp_layer.set_address(self._isotpaddr_FUNC)
-        resp =self.udsclient.change_session(3)
-        print(resp)
-        # resp = self.udsclient.write_data_by_identifier(did = 0xF190, value=(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17))
-        # print( resp )
-        # resp = self.udsclient.read_data_by_identifier(0xF190)
-        # print( resp )
-        # resp = self.udsclient.request_seed(0x01)
-        self.udsclient.unlock_security_access(0x01)
-        print(resp.data)
-        resp = self.udsclient.read_data_by_identifier(0xF190)
-        resp = self.udsclient.write_data_by_identifier(did=0xF190, value=(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17))
-        print(resp)
-        resp = self.udsclient.read_data_by_identifier(0xF190)
 
 
     def SecAlgo(self, level, seed, params):
@@ -356,24 +332,3 @@ class ZCAN_CCDiag(object):
             # messagebox.showerror(title="发送报文", message="发送失败！")
             print("发送失败")
         return
-
-
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    app = qw.QApplication(sys.argv)
-    w = UDS.myMainWindow()
-    # recv_can_msgs = (ZCAN_CAN_OBJ * 10)()
-    # recv_can_msgs[0].ID = 1
-    # recv_can_msgs[1].ID = 2
-    # recv_can_msgs[2].ID = 3
-    # print(recv_can_msgs[0].ID)
-    # print(recv_can_msgs[1].ID)
-    # print(recv_can_msgs[2].ID)
-    # demo = ZCAN_CCDiag()
-    w.show()
-    print_hi('PyCharm')
-    sys.exit(app.exec_())
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
