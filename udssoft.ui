@@ -287,7 +287,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>00000000</string>
+      <string>E3000000</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="lineEdit_AccMask">
@@ -300,7 +300,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>FFFFFFFF</string>
+      <string>00000000</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_Close">
@@ -394,7 +394,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>0</string>
+        <string>7DF</string>
        </property>
       </widget>
       <widget class="QLineEdit" name="lineEdit_AddrRes">
@@ -407,7 +407,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>F</string>
+        <string>718</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_AddrFunc_2">
@@ -701,7 +701,7 @@
         </property>
        </widget>
       </widget>
-      <widget class="QPushButton" name="pushButton_2">
+      <widget class="QPushButton" name="pushButton_send">
        <property name="geometry">
         <rect>
          <x>580</x>

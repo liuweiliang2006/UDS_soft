@@ -175,27 +175,21 @@ class ZCAN_CCDiag(object):
         self.DeviceInit()
 
     def DeviceInit(self):
-        # self._zcan = ZCAN()
-        # self._dev_handle = INVALID_DEVICE_HANDLE
-        # self._can_handle = INVALID_CHANNEL_HANDLE
-        #
-        # # self.__dll = windll.LoadLibrary("./CANoeILNLVector.dll")
-        # # if self.__dll is None:
-        # #     print("load CANoeILNLVector.dll err")
-        # # else:
-        # #     print("load CANoeILNLVector.dll OK")
-        #
-        # # self._isOpen = False
-        # self._isChnOpen = False
-        #
-        # #current device info
-        # self._is_canfd = False
-        # self._res_support = False
-        #
-        # # read can/canfd message thread
-        # # self._read_thread = None
-        # self._terminated = False
-        # self._lock = threading.RLock()
+        self._zcan = ZCAN()
+        self._dev_handle = INVALID_DEVICE_HANDLE
+        self._can_handle = INVALID_CHANNEL_HANDLE
+
+        # self._isOpen = False
+        self._isChnOpen = False
+
+        #current device info
+        self._is_canfd = False
+        self._res_support = False
+
+        # read can/canfd message thread
+        # self._read_thread = None
+        self._terminated = False
+        self._lock = threading.RLock()
 
         self.isotp_params = {
             'stmin' : 20,                          # Will request the sender to wait 32ms between consecutive frame. 0-127ms or 100-900ns with values from 0xF1-0xF9
@@ -265,28 +259,28 @@ class ZCAN_CCDiag(object):
         # print(type(value))
 
         self.udsclient.open()
-        # payload_send = struct.pack("BBBBBBBB", 0x01, 0x01, 0x39, 0x00, 0x00, 0x00, 0x00, 0x00)
+        # payload_send = struct.pack("BBBBBBBB", 0x02, 0x10, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00)
         # self.conn.send(payload_send)
-        # payload_rcv = self.conn.wait_frame(timeout=10)
+        # payload_rcv = self.conn.wait_frame(timeout=50)
         # print(payload_rcv)
         # self.udsclient.close()
         # self.isotp_layer = isotp.TransportLayer(rxfn=self.isotp_rcv, txfn=self.isotp_send, address=self._isotpaddr_FUNC,
         #                                         params=self.isotp_params)
         # self.udsclient.open()
         # self.isotp_layer.set_address(self._isotpaddr_FUNC)
-        resp =self.udsclient.change_session(3)
-        print(resp)
+        # resp =self.udsclient.change_session(1)
+        # print(resp)
         # resp = self.udsclient.write_data_by_identifier(did = 0xF190, value=(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17))
         # print( resp )
         # resp = self.udsclient.read_data_by_identifier(0xF190)
         # print( resp )
         # resp = self.udsclient.request_seed(0x01)
-        self.udsclient.unlock_security_access(0x01)
-        print(resp.data)
-        resp = self.udsclient.read_data_by_identifier(0xF190)
-        resp = self.udsclient.write_data_by_identifier(did=0xF190, value=(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17))
-        print(resp)
-        resp = self.udsclient.read_data_by_identifier(0xF190)
+        # self.udsclient.unlock_security_access(0x01)
+        # print(resp.data)
+        # resp = self.udsclient.read_data_by_identifier(0xF190)
+        # resp = self.udsclient.write_data_by_identifier(did=0xF190, value=(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17))
+        # print(resp)
+        # resp = self.udsclient.read_data_by_identifier(0xF190)
 
 
     def SecAlgo(self, level, seed, params):

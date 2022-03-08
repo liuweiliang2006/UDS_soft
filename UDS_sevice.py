@@ -179,7 +179,8 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
         self.pushButton_Close.clicked.connect(self.pushButton_Close_cb)
         # self.lineEdit_AddrPHY.editingFinished.connect(self.lineEdit_AddrPHY_cb)
         self.pushButton_AddrSet.clicked.connect(self.pushButton_AddrSet_cb)
-        self.radioButton_phy.toggled.connect(self.radioButton_phy_cb)
+        self.radioButton_phy.toggled.connect(self.pushButton_AddrSet_cb)
+        self.pushButton_send.clicked.connect(self.pushButton_send_cb)
     def comboBox_SID_cb(self):
         content = self.comboBox_SID.currentText()
         print("combox's value is", content)
@@ -190,6 +191,7 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
 
         if "0x10" in content:
             print("0x10")
+            self.SID_Value=0x10
             self.display_SSID()
             self.Hide_data()
             self.Hide_DID()
@@ -199,14 +201,16 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
 
         if "0x11" in content:
             print("0x11")
+            self.SID_Value = 0x11
             self.display_SSID()
             self.Hide_data()
             self.Hide_DID()
             self.comboBox_SSID.addItem("0x01-硬件复位")
             self.comboBox_SSID.addItem("0x02-钥匙开关复位")
-            self.comboBox_SSID.addItem("0x01-软件复位")
+            self.comboBox_SSID.addItem("0x03-软件复位")
         if "0x14" in content:
             print("0x14")
+            self.SID_Value = 0x14
             self.display_SSID()
             self.Hide_data()
             self.Hide_DID()
@@ -218,16 +222,18 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             self.comboBox_SSID.addItem("0xFFFFFF-所有组")
         if "0x19" in content:
             print("0x19")
+            self.SID_Value = 0x19
             self.display_SSID()
             self.Hide_data()
             self.Hide_DID()
             self.comboBox_SSID.addItem("0x01-报告DTC数目")
             self.comboBox_SSID.addItem("0x02-报告DTC")
-            self.comboBox_SSID.addItem("0x04-DTCSnapshot记录")
-            self.comboBox_SSID.addItem("0x06-DTC扩展数据记录")
+            # self.comboBox_SSID.addItem("0x04-DTCSnapshot记录")
+            # self.comboBox_SSID.addItem("0x06-DTC扩展数据记录")
             self.comboBox_SSID.addItem("0x0A-报告支持的DTC")
         if "0x22" in content:
             print("0x22")
+            self.SID_Value = 0x22
             self.Hide_SSID()
             self.Hide_data()
             self.display_DID()
@@ -237,6 +243,7 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             print("0x23")
         if "0x27" in content:
             print("0x27")
+            self.SID_Value = 0x27
             self.display_SSID()
             self.Hide_data()
             self.Hide_DID()
@@ -248,6 +255,7 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             self.comboBox_SSID.addItem("0x0A-发送密钥(level 3)")
         if "0x28" in content:
             print("0x28")
+            self.SID_Value = 0x28
             self.display_SSID()
             self.Hide_data()
             self.Hide_DID()
@@ -262,6 +270,7 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             print("0x2C")
         if "0x2E" in content:
             print("0x2E")
+            self.SID_Value = 0x2E
             self.display_DID()
             self.display_data()
             self.Hide_SSID()
@@ -281,12 +290,14 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             print("0x3D")
         if "0x3E" in content:
             print("0x3E")
+            self.SID_Value = 0x3E
             self.display()
             self.comboBox_SSID.setHidden(True)
             self.label_SSID.setHidden(True)
 
         if "0x85" in content:
             print("0x85")
+            self.SID_Value = 0x85
             self.display_SSID()
             self.Hide_data()
             self.Hide_DID()
@@ -360,6 +371,19 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             iniconfig.timing0 = 0x00
             iniconfig.timing1 = 0x1C
             iniconfig.mode = 0
+            ret = self._zcan.InitCAN(ZCAN_USBCAN2, 0, 0, iniconfig)
+            if ret != ZCAN_STATUS_OK:
+                print("init can device err")
+                exit(0)
+            else:
+                print("init can device OK")
+
+            ret = self._zcan.StartCAN(ZCAN_USBCAN2, 0, 0)
+            if ret != ZCAN_STATUS_OK:
+                print("start can device err")
+                exit(0)
+            else:
+                print("start can device OK")
 
             self._isOpen = True
 
@@ -375,12 +399,12 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             self.uds_tp_func_set()
         self.uds_udsclient_config()
 
-    def radioButton_phy_cb(self):
-        if self.radioButton_phy.isChecked():
-            self.uds_tp_phy_set()
-        else:
-            self.uds_tp_func_set()
-        self.uds_udsclient_config()
+    # def radioButton_phy_cb(self):
+    #     if self.radioButton_phy.isChecked():
+    #         self.uds_tp_phy_set()
+    #     else:
+    #         self.uds_tp_func_set()
+    #     self.uds_udsclient_config()
 
     def uds_tp_phy_set(self):
         phy_addr = self.lineEdit_AddrPHY.text()
@@ -407,7 +431,9 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
 
     def uds_udsclient_config(self):
         self.conn = myMainWindow.IsoTpConnection(isotp_layer=self.isotp_layer)
-        self.udsclient.config['p2_timeout'] == 3
+        self.udsclient = Client(self.conn, request_timeout=2)
+
+        self.udsclient.config['p2_timeout'] = 3
         self.udsclient.config['security_algo'] = self.SecAlgo
         self.udsclient.config['security_algo_params'] = [0x4FE87269, 0x6BC361D8, 0x9B127D51, 0x5BA41903]
         self.udsclient.config['data_identifiers'] = {
@@ -420,9 +446,32 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
         }
         self.udsclient.config['server_address_format'] = 32
         self.udsclient.config['server_memorysize_format'] = 32
+        self.udsclient = Client(self.conn, config=self.udsclient.config, request_timeout=2)
 
-
-
+    def pushButton_send_cb(self):
+        print("sendbutton")
+        self.udsclient.open()
+        if self.SID_Value == 0x10:
+            # print("sevice - 0x10")
+            sevcie_if.sevice_10(self)
+        elif self.SID_Value ==0x11:
+            sevcie_if.sevice_11(self)
+        elif self.SID_Value ==0x14:
+            sevcie_if.sevice_14(self)
+        elif self.SID_Value ==0x19:
+            sevcie_if.sevice_19(self)
+        elif self.SID_Value ==0x22:
+            sevcie_if.sevice_22(self)
+        elif self.SID_Value ==0x27:
+            sevcie_if.sevice_27(self)
+        elif self.SID_Value ==0x28:
+            sevcie_if.sevice_28(self)
+        elif self.SID_Value ==0x2E:
+            sevcie_if.sevice_2E(self)
+        elif self.SID_Value ==0x3E:
+            sevcie_if.sevice_3E(self)
+        elif self.SID_Value ==0x85:
+            sevcie_if.sevice_85(self)
 
     class IsoTpConnection(BaseConnection):
         mtu = 4095
