@@ -8,26 +8,18 @@ import queue
 import struct
 import threading
 import time
-import logging
 
 from ControlCAN import *
 from udsoncan.client import Client
 from udsoncan.exceptions import TimeoutException
 import udsoncan
 from udsoncan.connections import BaseConnection
-from udsoncan import services, Response, MemoryLocation
 
 import isotp
-from isotp import CanMessage
-from functools import partial
 
 import sys
 import PyQt5.QtWidgets as qw
 import UDS_sevice as UDS
-import PyQt5.QtCore as qc
-import udssoft
-import Can_sevice
-import os
 
 GRPBOX_WIDTH    = 200
 
@@ -358,14 +350,6 @@ class ZCAN_CCDiag(object):
 if __name__ == '__main__':
     app = qw.QApplication(sys.argv)
     w = UDS.myMainWindow()
-    # recv_can_msgs = (ZCAN_CAN_OBJ * 10)()
-    # recv_can_msgs[0].ID = 1
-    # recv_can_msgs[1].ID = 2
-    # recv_can_msgs[2].ID = 3
-    # print(recv_can_msgs[0].ID)
-    # print(recv_can_msgs[1].ID)
-    # print(recv_can_msgs[2].ID)
-    # demo = ZCAN_CCDiag()
     w.show()
     print_hi('PyCharm')
     sys.exit(app.exec_())

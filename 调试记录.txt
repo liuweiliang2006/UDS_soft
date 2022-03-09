@@ -69,3 +69,9 @@ payload_rcv = self.conn.wait_frame(timeout=10)
 	通过状态掩码报告DTC数目：get_number_of_dtc_by_status_mask(0) 
 		sed:id-0x7df,dlc-8,data-b'0319010000000000'
 		rec:id-0x718,dlc-8,data-b'0659010900000055'
+		
+-》打包
+pip3 install pyinstaller
+pyinstaller -Fw
+-w:不显示终端
+-F：将所有的库打包成一个单独文件

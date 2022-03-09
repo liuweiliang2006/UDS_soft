@@ -4,36 +4,21 @@ import queue
 import struct
 import threading
 import time
-# import queue
-import rec_task
-import logging
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 
 from PyQt5.QtWidgets import  *
-# from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
 from ControlCAN import *
 from udsoncan.client import Client
 from udsoncan.exceptions import TimeoutException
 import udsoncan
 from udsoncan.connections import BaseConnection
-from udsoncan import services, Response, MemoryLocation
 
 import isotp
-from isotp import CanMessage
-from functools import partial
 
-import sys
+
 import PyQt5.QtWidgets as qw
-import UDS_sevice
 import sevcie_if
-import PyQt5.QtCore as qc
 import udssoft
-import main
-import display
-import os
 
 q= queue.Queue()
 
@@ -450,7 +435,7 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
         self.isotp_layer = isotp.TransportLayer(rxfn=self.isotp_rcv, txfn=self.isotp_send,
                                                 address=self._isotpaddr_PHYS,
                                                 params=self.isotp_params)
-        print("radioButton_PHY")
+        # print("radioButton_PHY")
 
     def uds_tp_func_set(self):
         func_addr = self.lineEdit_AddrFunc.text()
@@ -577,7 +562,7 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
 
         for i in range(len(isotp_msg.data)):
             msg.Data[i] = isotp_msg.data[i]
-        print("sed:id-%s,dlc-%d,data-%s" % (hex(msg.ID), msg.DataLen, binascii.hexlify(msg.Data)))
+        # print("sed:id-%s,dlc-%d,data-%s" % (hex(msg.ID), msg.DataLen, binascii.hexlify(msg.Data)))
 
 
         self.display(msgs = msg,direction=2)
@@ -594,7 +579,7 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
         # print(self)
         row_count = self.tableWidget.rowCount()
         if row_count >= 100:
-            self.table.removeRow(0)
+            self.tableWidget.removeRow(0)
         self.tableWidget.insertRow(row_count)
 
         can_data = []
@@ -611,11 +596,11 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
 
     def rec_task(self):
         while True:
-            print("rec_task")
+            # print("rec_task")
             revmsg = q.get()
             if revmsg != None:
-                print("REV:id-%s,dlc-%d,data-%s" % (hex(revmsg.ID), revmsg.DataLen, binascii.hexlify(revmsg.Data)))
+                # print("REV:id-%s,dlc-%d,data-%s" % (hex(revmsg.ID), revmsg.DataLen, binascii.hexlify(revmsg.Data)))
                 # print(revmsg.DataLen)
                 # print(revmsg.ID)
                 self.display(msgs=revmsg,direction=1)
-            time.sleep(2)
+            time.sleep(0.0001)
