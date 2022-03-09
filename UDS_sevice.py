@@ -4,7 +4,15 @@ import queue
 import struct
 import threading
 import time
+# import queue
+import rec_task
 import logging
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+
+from PyQt5.QtWidgets import  *
+# from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
 from ControlCAN import *
 from udsoncan.client import Client
@@ -24,13 +32,15 @@ import sevcie_if
 import PyQt5.QtCore as qc
 import udssoft
 import main
+import display
 import os
+
+q= queue.Queue()
+
 MAX_RCV_NUM     = 20
 class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
     class IsoTpConnection(BaseConnection):
-
         mtu = 4095
-
         def __init__(self, isotp_layer, name=None):
             BaseConnection.__init__(self, name)
             self.toIsoTPQueue = queue.Queue()
@@ -106,13 +116,25 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
                 self.toIsoTPQueue.get()
 
         def rxthread_task(self):
+            rec_msg = ZCAN_CAN_OBJ()
             while not self.exit_requested:
                 try:
                     self.logger.debug("toIsoTPQueue queue size is now %d" % (self.toIsoTPQueue.qsize()))
                     while not self.toIsoTPQueue.empty():
                         self.isotp_layer.send(self.toIsoTPQueue.get())
 
-                    self.isotp_layer.process()
+                    msg = self.isotp_layer.process()
+                    if msg != None:
+                        rec_msg.ID = msg.arbitration_id
+                        rec_msg.SendType = 1
+                        rec_msg.RemoteFlag = 0
+                        rec_msg.ExternFlag = 0
+                        rec_msg.DataLen = msg.dlc
+                        rec_msg.Data = msg.data
+                        # print(hex(msg.arbitration_id))
+                        q.put(rec_msg)
+                        # w.display(,msgs=rec_msg)
+                        # main.w.display(msgs=rec_msg)
 
                     while self.isotp_layer.available():
                         self.fromIsoTPQueue.put(self.isotp_layer.recv())
@@ -143,7 +165,9 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
     def __init__(self):
         super().__init__()#继承父类的方式实例化子类
         self.setupUi(self)
-
+        # self._read_thread = threading.Thread(None, target=self.rxthread_task)
+        self.rec = threading.Thread(None, target=self.rec_task)
+        self.rec.start()
         #初始化默认参数
         self._zcan = ZCAN()
         self._dev_handle = INVALID_DEVICE_HANDLE
@@ -173,6 +197,17 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
         # 初始化界面
         self.radioButton_phy.setChecked(True)
 
+        titles = ['系统时间', '传输方向', 'ID号', ' 数据']
+        self.tableWidget = QTableWidget(self.tableWidget)   #创建空表格
+        self.tableWidget.resize(1051,301)
+        #self.table = QTableWidget(4,3,self)  #创建4行3列的表格
+        # self.tableWidget.setRowCount(100)  # 设置行数--不包括标题列
+        self.tableWidget.setColumnCount(4)  # 设置列数
+        self.tableWidget.setHorizontalHeaderLabels(titles)  # 标题列---水平标题
+        # self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        # self.tableWidget.setColumnWidth(4, 350)#设置某列的宽度
+        self.tableWidget.horizontalHeader().setStretchLastSection(True)#设置最后一列自动填充容器
+        # self.tableWidget.setItem(0, 2, QTableWidgetItem("0x01"))
         # 信号与槽
         self.comboBox_SID.currentTextChanged.connect(self.comboBox_SID_cb)
         self.pushButton_Open.clicked.connect(self.pushButton_Open_cb)
@@ -473,102 +508,6 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
         elif self.SID_Value ==0x85:
             sevcie_if.sevice_85(self)
 
-    class IsoTpConnection(BaseConnection):
-        mtu = 4095
-        def __init__(self, isotp_layer, name=None):
-            BaseConnection.__init__(self, name)
-            self.toIsoTPQueue = queue.Queue()
-            self.fromIsoTPQueue = queue.Queue()
-            self._read_thread = None
-            self.exit_requested = False
-            self.opened = False
-            self.isotp_layer = isotp_layer
-            assert isinstance(self.isotp_layer, isotp.TransportLayer) , 'isotp_layer must be a valid isotp.TransportLayer '
-
-        def open(self):
-            self.exit_requested = False
-            self._read_thread = threading.Thread(None, target=self.rxthread_task)
-            self._read_thread.start()
-            self.opened = True
-            self.logger.info('Connection opened')
-            return self
-
-        def __enter__(self):
-            return self
-
-        def __exit__(self, type, value, traceback):
-            self.close()
-
-        def is_open(self):
-            return self.opened
-
-        def close(self):
-            self.empty_rxqueue()
-            self.empty_txqueue()
-            self.exit_requested=True
-            self._read_thread.join()
-            self.isotp_layer.reset()
-            self.opened = False
-            self.logger.info('Connection closed')
-
-        def specific_send(self, payload):
-            if self.mtu is not None:
-                if len(payload) > self.mtu:
-                    self.logger.warning("Truncating payload to be set to a length of %d" % (self.mtu))
-                    payload = payload[0:self.mtu]
-
-            self.toIsoTPQueue.put(bytearray(payload)) # isotp.protocol.TransportLayer uses byte array. udsoncan is strict on bytes format
-
-        def specific_wait_frame(self, timeout=2):
-            if not self.opened:
-                raise RuntimeError("Connection is not open")
-
-            timedout = False
-            frame = None
-            try:
-                frame = self.fromIsoTPQueue.get(block=True, timeout=timeout)
-            except queue.Empty:
-                timedout = True
-
-            if timedout:
-                raise TimeoutException("Did not receive frame IsoTP Transport layer in time (timeout=%s sec)" % timeout)
-
-            if self.mtu is not None:
-                if frame is not None and len(frame) > self.mtu:
-                    self.logger.warning("Truncating received payload to a length of %d" % (self.mtu))
-                    frame = frame[0:self.mtu]
-
-            return bytes(frame)	# isotp.protocol.TransportLayer uses bytearray. udsoncan is strict on bytes format
-
-        def empty_rxqueue(self):
-            while not self.fromIsoTPQueue.empty():
-                self.fromIsoTPQueue.get()
-
-        def empty_txqueue(self):
-            while not self.toIsoTPQueue.empty():
-                self.toIsoTPQueue.get()
-
-        def rxthread_task(self):
-            while not self.exit_requested:
-                try:
-                    self.logger.debug("toIsoTPQueue queue size is now %d" % (self.toIsoTPQueue.qsize()))
-                    while not self.toIsoTPQueue.empty():
-                        self.isotp_layer.send(self.toIsoTPQueue.get())
-
-                    self.isotp_layer.process()
-
-                    while self.isotp_layer.available():
-                        self.fromIsoTPQueue.put(self.isotp_layer.recv())
-                    self.logger.debug("fromIsoTPQueue queue size is now %d" % (self.fromIsoTPQueue.qsize()))
-
-                    time.sleep(self.isotp_layer.sleep_time())
-                    time.sleep(0.0001)
-
-                except Exception as e:
-                    self.exit_requested = True
-                    self.logger.error(str(e))
-                    print("Error occurred while read CAN(FD) data!")
-
     def getDateTimeBytes(self):
         """
         get year/month/day and convert into bytes
@@ -629,7 +568,6 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
         # self.udsclient = Client(self.conn, request_timeout=2)
         #isotp_msg.data.extend(bytearray([0xCC] * (8-len(isotp_msg.data))))
         # msg = ZCAN_Transmit_Data()
-
         msg = ZCAN_CAN_OBJ()
         msg.ID = isotp_msg.arbitration_id
         msg.SendType = 1
@@ -640,6 +578,10 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
         for i in range(len(isotp_msg.data)):
             msg.Data[i] = isotp_msg.data[i]
         print("sed:id-%s,dlc-%d,data-%s" % (hex(msg.ID), msg.DataLen, binascii.hexlify(msg.Data)))
+
+
+        self.display(msgs = msg,direction=2)
+
         # print(str(datetime.datetime.now().second))
         # print(str(datetime.datetime.now().microsecond))
         ret = self._zcan.Transmit(ZCAN_USBCAN2, 0, 0, msg, 1)
@@ -647,3 +589,33 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             # messagebox.showerror(title="发送报文", message="发送失败！")
             print("发送失败")
         return
+
+    def display(self, msgs,direction):
+        # print(self)
+        row_count = self.tableWidget.rowCount()
+        if row_count >= 100:
+            self.table.removeRow(0)
+        self.tableWidget.insertRow(row_count)
+
+        can_data = []
+        i = 0
+        while i < msgs.DataLen:
+            can_data.append(hex(msgs.Data[i]))
+            i = i + 1
+        self.tableWidget.setItem(row_count, 2, QTableWidgetItem(str(hex(msgs.ID))))
+        self.tableWidget.setItem(row_count, 3, QTableWidgetItem(str(can_data)))
+        if direction==2:
+            self.tableWidget.setItem(row_count, 1, QTableWidgetItem("TX"))
+        elif direction==1:
+            self.tableWidget.setItem(row_count, 1, QTableWidgetItem("RX"))
+
+    def rec_task(self):
+        while True:
+            print("rec_task")
+            revmsg = q.get()
+            if revmsg != None:
+                print("REV:id-%s,dlc-%d,data-%s" % (hex(revmsg.ID), revmsg.DataLen, binascii.hexlify(revmsg.Data)))
+                # print(revmsg.DataLen)
+                # print(revmsg.ID)
+                self.display(msgs=revmsg,direction=1)
+            time.sleep(2)
