@@ -8,7 +8,7 @@ import queue
 import struct
 import threading
 import time
-
+import string
 from ControlCAN import *
 from udsoncan.client import Client
 from udsoncan.exceptions import TimeoutException
@@ -208,11 +208,18 @@ class ZCAN_CCDiag(object):
         self.udsclient.config['security_algo'] = self.SecAlgo
         self.udsclient.config['security_algo_params'] = [0x4FE87269, 0x6BC361D8, 0x9B127D51, 0x5BA41903]
         self.udsclient.config['data_identifiers'] = {
-            0xF1A8 : udsoncan.DidCodec('B'),
-            0xF190 : udsoncan.DidCodec('BBBBBBBBBBBBBBBBB'),       # Codec that read ASCII string. We must tell the length of the string
-            # 0xF190: udsoncan.AsciiCodec(17),
-            0xF195 : udsoncan.DidCodec('B'),
-            0xF199 : udsoncan.DidCodec('BBBBBBB')
+            0xF187: udsoncan.DidCodec('BBBBBBBBBB'),
+            0xF18A: udsoncan.DidCodec('BBBBBBB'),
+            # 0xF18B: udsoncan.DidCodec('BBBBBBBBBB'),
+            0xF18C: udsoncan.DidCodec('BBBBBBBBBBB'),
+            0xF190: udsoncan.DidCodec('BBBBBBBBBBBBBBBBB'),       # Codec that read ASCII string. We must tell the length of the string
+            0xF192: udsoncan.DidCodec('BBBBBBBBBBBB'),
+            0xF193: udsoncan.DidCodec('BBBB'),
+            0xF194: udsoncan.DidCodec('BBBBBBBBBBBBBBBB'),
+            0xF195: udsoncan.DidCodec('BBBB'),
+            0xF198: udsoncan.DidCodec('BBBBBBBBBBBBBBBB'),
+            0xF19D: udsoncan.DidCodec('BBBB'),
+            0xF190: udsoncan.AsciiCodec(17),
             }
         self.udsclient.config['server_address_format'] = 32
         self.udsclient.config['server_memorysize_format'] = 32
@@ -260,15 +267,24 @@ class ZCAN_CCDiag(object):
         #                                         params=self.isotp_params)
         # self.udsclient.open()
         # self.isotp_layer.set_address(self._isotpaddr_FUNC)
-        # resp =self.udsclient.change_session(1)
+        resp =self.udsclient.change_session(3)
+        resp = self.udsclient.unlock_security_access(0x01)
         # print(resp)
-        # resp = self.udsclient.write_data_by_identifier(did = 0xF190, value=(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17))
+        resp = self.udsclient.write_data_by_identifier(did = 0xF187, value=(1,2,3,4,5,6,7,8,9,10))
         # print( resp )
-        # resp = self.udsclient.read_data_by_identifier(0xF190)
-        # print( resp )
+        resp = self.udsclient.read_data_by_identifier(0xF187)
+        # print(resp.valid)
+        # print(resp.invalid_reason)
+        # print(resp.service)
+        # print(resp.code)
+        # print(resp.code_name)
+        # print(str(resp.data))
+        # print(resp.service_data)
+        # print( resp.original_payload )
+        # print(resp.unexpected)
         # resp = self.udsclient.request_seed(0x01)
-        # self.udsclient.unlock_security_access(0x01)
-        # print(resp.data)
+        resp=self.udsclient.unlock_security_access(0x01)
+        print(resp.data)
         # resp = self.udsclient.read_data_by_identifier(0xF190)
         # resp = self.udsclient.write_data_by_identifier(did=0xF190, value=(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17))
         # print(resp)
@@ -350,8 +366,34 @@ class ZCAN_CCDiag(object):
 if __name__ == '__main__':
     app = qw.QApplication(sys.argv)
     w = UDS.myMainWindow()
+    #
+    # # demo = ZCAN_CCDiag()
     w.show()
     print_hi('PyCharm')
     sys.exit(app.exec_())
+    # a='hello'
+
+    # c = "a0160101"
+    # d = list(c)
+    # # d= tuple(d)
+    # # struct.pack('BBBBBBBB',c.encode('utf-8'))
+    # # a1,a2,a3,a4,a5,a6,a7,a8=struct.unpack('BBBBBBBB',c.encode('utf-8'))
+    # a = dict(6)
+    # print(a)
+    # a1 = int(d[0])
+    # a2 = int(d[1])
+    # a3 = int(d[2])
+    # a4 = int(d[3])
+    # a5 = int(d[4])
+    # a6 = int(d[5])
+    # a7 = int(d[6])
+    # a8 = int(d[7])
+    # print(a1,a2,a3,a4,a5,a6,a7,a8)
+    # b = 'world!'
+    # bytes=struct.unpack('5s',a.encode('utf-8'))
+    #
+    # print(len(bytes))
+    # print(a)
+    # print(list(a))
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

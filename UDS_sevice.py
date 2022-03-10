@@ -159,6 +159,7 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
         self._can_handle = INVALID_CHANNEL_HANDLE
         self._isOpen = False
         self._isChnOpen = False
+        self._isUDSOpen = False
         # current device info
         self._is_canfd = False
         self._res_support = False
@@ -181,6 +182,11 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
         }
         # 初始化界面
         self.radioButton_phy.setChecked(True)
+
+        self.Hide_DID()
+        self.Hide_data()
+        self.Hide_SSID()
+        self.Hide_rec_data()
 
         titles = ['系统时间', '传输方向', 'ID号', ' 数据']
         self.tableWidget = QTableWidget(self.tableWidget)   #创建空表格
@@ -205,9 +211,13 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
         content = self.comboBox_SID.currentText()
         print("combox's value is", content)
         if "NONE" in content:
-            self.display_data()
-            self.display_SSID()
-            self.display_DID()
+            self.Hide_DID()
+            self.Hide_data()
+            self.Hide_SSID()
+            self.Hide_rec_data()
+            # self.display_data()
+            # self.display_SSID()
+            # self.display_DID()
 
         if "0x10" in content:
             print("0x10")
@@ -215,6 +225,7 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             self.display_SSID()
             self.Hide_data()
             self.Hide_DID()
+            self.Hide_rec_data()
             self.comboBox_SSID.addItem("0x01-默认会话")
             self.comboBox_SSID.addItem("0x02-编程会话")
             self.comboBox_SSID.addItem("0x03-扩展会话")
@@ -225,6 +236,7 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             self.display_SSID()
             self.Hide_data()
             self.Hide_DID()
+            self.Hide_rec_data()
             self.comboBox_SSID.addItem("0x01-硬件复位")
             self.comboBox_SSID.addItem("0x02-钥匙开关复位")
             self.comboBox_SSID.addItem("0x03-软件复位")
@@ -234,6 +246,7 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             self.display_SSID()
             self.Hide_data()
             self.Hide_DID()
+            self.Hide_rec_data()
             self.comboBox_SSID.addItem("0x100000-动力组")
             self.comboBox_SSID.addItem("0x200000-信息娱乐组")
             self.comboBox_SSID.addItem("0x400000-底盘和ADAS组")
@@ -246,6 +259,7 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             self.display_SSID()
             self.Hide_data()
             self.Hide_DID()
+            self.Hide_rec_data()
             self.comboBox_SSID.addItem("0x01-报告DTC数目")
             self.comboBox_SSID.addItem("0x02-报告DTC")
             # self.comboBox_SSID.addItem("0x04-DTCSnapshot记录")
@@ -257,7 +271,8 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             self.Hide_SSID()
             self.Hide_data()
             self.display_DID()
-            self.add_comboBox_DID()
+            self.Hide_rec_data()
+            self.add_comboBox_Read_DID()
             # self.comboBox_SSID.setEditable(False)
         if "0x23" in content:
             print("0x23")
@@ -267,6 +282,7 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             self.display_SSID()
             self.Hide_data()
             self.Hide_DID()
+            self.Hide_rec_data()
             self.comboBox_SSID.addItem("0x01-请求种子(level 1)")
             self.comboBox_SSID.addItem("0x02-发送密钥(level 1)")
             self.comboBox_SSID.addItem("0x03-请求种子(level 2)")
@@ -279,6 +295,7 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             self.display_SSID()
             self.Hide_data()
             self.Hide_DID()
+            self.Hide_rec_data()
             self.comboBox_SSID.addItem("0x00-enableRxAndTx")
             self.comboBox_SSID.addItem("0x01-enableRxAndDisableTx")
             self.comboBox_SSID.addItem("0x02-disableRxAndEnableTx")
@@ -294,7 +311,8 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             self.display_DID()
             self.display_data()
             self.Hide_SSID()
-            self.add_comboBox_DID()
+            self.Hide_rec_data()
+            self.add_comboBox_Write_DID()
 
         if "0x2F" in content:
             print("0x2F")
@@ -312,6 +330,7 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             print("0x3E")
             self.SID_Value = 0x3E
             self.display()
+            self.Hide_rec_data()
             self.comboBox_SSID.setHidden(True)
             self.label_SSID.setHidden(True)
 
@@ -321,6 +340,7 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
             self.display_SSID()
             self.Hide_data()
             self.Hide_DID()
+            self.Hide_rec_data()
             self.comboBox_SSID.addItem("0x01-ON 恢复诊断故障码设置")
             self.comboBox_SSID.addItem("0x02-OFF 停止诊断故障码设置")
 
@@ -353,7 +373,16 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
         self.comboBox_DID.clear()
         self.comboBox_DID.setHidden(True)
         self.label_DID.setHidden(True)
-    def add_comboBox_DID(self):
+
+    def Hide_rec_data(self):
+        self.label_rec_data.clear()
+        self.label_rec_data.setHidden(True)
+
+    def display_rec_data(self):
+        self.label_rec_data.clear()
+        self.label_rec_data.setHidden(False)
+
+    def add_comboBox_Read_DID(self):
         self.comboBox_DID.addItem("0xF187-零部件编号")
         self.comboBox_DID.addItem("0xF18A-供应商代码")
         self.comboBox_DID.addItem("0xF18B-ECU制造日期")
@@ -363,6 +392,10 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
         self.comboBox_DID.addItem("0xF193-供应商ECU硬件版本号")
         self.comboBox_DID.addItem("0xF194-供应商ECU软件号")
         self.comboBox_DID.addItem("0xF195-供应商ECU软件版本号")
+        self.comboBox_DID.addItem("0xF198-维修点代码或诊断仪序列号")
+        self.comboBox_DID.addItem("0xF19D-ECU安装日期代码")
+    def add_comboBox_Write_DID(self):
+        self.comboBox_DID.addItem("0xF190-车身号码VIN")
         self.comboBox_DID.addItem("0xF198-维修点代码或诊断仪序列号")
         self.comboBox_DID.addItem("0xF19D-ECU安装日期代码")
 
@@ -411,6 +444,11 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
 
     def pushButton_Close_cb(self):
         self._isOpen = False
+        if self._isUDSOpen != False:
+            self.udsclient.close()
+        ret = self._zcan.ResetCAN(ZCAN_USBCAN2, 0, 0)
+        ret = self._zcan.CloseDevice(ZCAN_USBCAN2, 0)
+
 
     def pushButton_AddrSet_cb(self):
         if self.radioButton_phy.isChecked():
@@ -451,18 +489,25 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
 
     def uds_udsclient_config(self):
         self.conn = myMainWindow.IsoTpConnection(isotp_layer=self.isotp_layer)
-        self.udsclient = Client(self.conn, request_timeout=2)
+        self.udsclient = Client(self.conn, request_timeout=5)
 
         self.udsclient.config['p2_timeout'] = 3
         self.udsclient.config['security_algo'] = self.SecAlgo
         self.udsclient.config['security_algo_params'] = [0x4FE87269, 0x6BC361D8, 0x9B127D51, 0x5BA41903]
         self.udsclient.config['data_identifiers'] = {
-            0xF1A8: udsoncan.DidCodec('B'),
-            0xF190: udsoncan.DidCodec('BBBBBBBBBBBBBBBBB'),
-            # Codec that read ASCII string. We must tell the length of the string
+            # 0xF187: udsoncan.DidCodec('BBBBBBBBBB'),
+            0xF187: udsoncan.DidCodec('10s'),
+            0xF18A: udsoncan.DidCodec('BBBBBBB'),
+            # 0xF18B: udsoncan.DidCodec('BBBBBBBBBB'),
+            0xF18C: udsoncan.DidCodec('BBBBBBBBBBB'),
+            0xF190: udsoncan.DidCodec('17s'),       # Codec that read ASCII string. We must tell the length of the string
+            0xF192: udsoncan.DidCodec('BBBBBBBBBBBB'),
+            0xF193: udsoncan.DidCodec('BBBB'),
+            0xF194: udsoncan.DidCodec('BBBBBBBBBBBBBBBB'),
+            0xF195: udsoncan.DidCodec('BBBB'),
+            0xF198: udsoncan.DidCodec('BBBBBBBBBBBBBBBB'),
+            0xF19D: udsoncan.DidCodec('BBBBBBBB'),
             # 0xF190: udsoncan.AsciiCodec(17),
-            0xF195: udsoncan.DidCodec('B'),
-            0xF199: udsoncan.DidCodec('BBBBBBB')
         }
         self.udsclient.config['server_address_format'] = 32
         self.udsclient.config['server_memorysize_format'] = 32
@@ -470,28 +515,32 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
 
     def pushButton_send_cb(self):
         print("sendbutton")
-        self.udsclient.open()
-        if self.SID_Value == 0x10:
-            # print("sevice - 0x10")
-            sevcie_if.sevice_10(self)
-        elif self.SID_Value ==0x11:
-            sevcie_if.sevice_11(self)
-        elif self.SID_Value ==0x14:
-            sevcie_if.sevice_14(self)
-        elif self.SID_Value ==0x19:
-            sevcie_if.sevice_19(self)
-        elif self.SID_Value ==0x22:
-            sevcie_if.sevice_22(self)
-        elif self.SID_Value ==0x27:
-            sevcie_if.sevice_27(self)
-        elif self.SID_Value ==0x28:
-            sevcie_if.sevice_28(self)
-        elif self.SID_Value ==0x2E:
-            sevcie_if.sevice_2E(self)
-        elif self.SID_Value ==0x3E:
-            sevcie_if.sevice_3E(self)
-        elif self.SID_Value ==0x85:
-            sevcie_if.sevice_85(self)
+        if self._isOpen == True:
+            self.udsclient.open()
+            self._isUDSOpen = True
+            if self.SID_Value == 0x10:
+                # print("sevice - 0x10")
+                sevcie_if.sevice_10(self)
+            elif self.SID_Value ==0x11:
+                sevcie_if.sevice_11(self)
+            elif self.SID_Value ==0x14:
+                sevcie_if.sevice_14(self)
+            elif self.SID_Value ==0x19:
+                sevcie_if.sevice_19(self)
+            elif self.SID_Value ==0x22:
+                sevcie_if.sevice_22(self)
+            elif self.SID_Value ==0x27:
+                sevcie_if.sevice_27(self)
+            elif self.SID_Value ==0x28:
+                sevcie_if.sevice_28(self)
+            elif self.SID_Value ==0x2E:
+                sevcie_if.sevice_2E(self)
+            elif self.SID_Value ==0x3E:
+                sevcie_if.sevice_3E(self)
+            elif self.SID_Value ==0x85:
+                sevcie_if.sevice_85(self)
+        else:
+            qw.QMessageBox.information(self, "提示", "请先打开设备", qw.QMessageBox.Ok)
 
     def getDateTimeBytes(self):
         """
@@ -562,7 +611,7 @@ class myMainWindow(qw.QMainWindow,udssoft.Ui_MainWindow):
 
         for i in range(len(isotp_msg.data)):
             msg.Data[i] = isotp_msg.data[i]
-        # print("sed:id-%s,dlc-%d,data-%s" % (hex(msg.ID), msg.DataLen, binascii.hexlify(msg.Data)))
+        print("sed:id-%s,dlc-%d,data-%s" % (hex(msg.ID), msg.DataLen, binascii.hexlify(msg.Data)))
 
 
         self.display(msgs = msg,direction=2)
